@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Recommendation System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6e8e6e 0%, #a8c8a8 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+        
+        header {
+            background: #4a6b4a;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 20px;
+        }
+        
+        .form-container {
+            flex: 1;
+            min-width: 300px;
+            padding: 20px;
+        }
+        
+        .info-container {
+            flex: 1;
+            min-width: 300px;
+            padding: 20px;
+            background: #f5f9f5;
+            border-radius: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #3d5c3d;
+        }
+        
+        input[type="number"], select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #c1d6c1;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="number"]:focus, select:focus {
+            border-color: #4a6b4a;
+            outline: none;
+        }
+        
+        .range-values {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        button {
+            background: #4a6b4a;
+            color: white;
+            border: none;
+            padding: 14px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #3d5c3d;
+        }
+        
+        .result {
+            margin-top: 25px;
+            padding: 30px;
+            background: #e6f2e6;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #c1d6c1;
+        }
+        
+        .result h3 {
+            color: #3d5c3d;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .crop-name {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2c472c;
+            margin: 15px 0;
+            min-height: 40px;
+        }
+        
+        .confidence {
+            font-size: 1.2rem;
+            color: #4a6b4a;
+            margin-bottom: 20px;
+        }
+        
+        .roadmap-action {
+            margin-top: 20px;
+        }
+        
+        .btn-roadmap {
+            display: inline-block;
+            background: #2c5e2c;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .btn-roadmap:hover {
+            background: #1e421e;
+            transform: translateY(-2px);
+        }
+        
+        .season-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #edf5ed;
+            border-radius: 8px;
+        }
+        
+        .season-info h3 {
+            color: #3d5c3d;
+            margin-bottom: 10px;
+        }
+        
+        .slider-container {
+            margin-top: 10px;
+        }
+        
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 10px;
+            border-radius: 5px;
+            background: #ddeedd;
+            outline: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #4a6b4a;
+            cursor: pointer;
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #4a6b4a;
+            cursor: pointer;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9rem;
+            background: #f5f9f5;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Crop Recommendation System</h1>
+            <p class="subtitle">AI-powered crop suggestions based on your field conditions</p>
+        </header>
+        
+        <div class="content">
+            <div class="form-container">
+                <h2>Enter Your Field Conditions</h2>
+                <form id="prediction-form">
+                    <div class="form-group">
+                        <label for="temperature">Temperature (°C)</label>
+                        <input type="number" id="temperature" name="temperature" min="0" max="50" step="0.1" required>
+                        <div class="slider-container">
+                            <input type="range" min="0" max="50" step="0.5" value="25" class="slider" id="temperature-slider">
+                            <div class="range-values">
+                                <span>0°C</span>
+                                <span>25°C</span>
+                                <span>50°C</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="humidity">Humidity (%)</label>
+                        <input type="number" id="humidity" name="humidity" min="0" max="100" step="0.1" required>
+                        <div class="slider-container">
+                            <input type="range" min="0" max="100" step="1" value="70" class="slider" id="humidity-slider">
+                            <div class="range-values">
+                                <span>0%</span>
+                                <span>50%</span>
+                                <span>100%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="ph">Soil pH</label>
+                        <input type="number" id="ph" name="ph" min="0" max="14" step="0.1" required>
+                        <div class="slider-container">
+                            <input type="range" min="0" max="14" step="0.1" value="6.5" class="slider" id="ph-slider">
+                            <div class="range-values">
+                                <span>0 (Acidic)</span>
+                                <span>7 (Neutral)</span>
+                                <span>14 (Alkaline)</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="water_availability">Water Availability (mm)</label>
+                        <input type="number" id="water_availability" name="water_availability" min="0" max="500" step="1" required>
+                        <div class="slider-container">
+                            <input type="range" min="0" max="500" step="5" value="200" class="slider" id="water-slider">
+                            <div class="range-values">
+                                <span>0mm</span>
+                                <span>250mm</span>
+                                <span>500mm</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="season">Season</label>
+                        <select id="season" name="season" required>
+                            <option value="rainy">Rainy</option>
+                            <option value="winter">Winter</option>
+                            <option value="summer">Summer</option>
+                            <option value="spring">Spring</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit">Get Crop Recommendation</button>
+                </form>
+                
+                <!-- RESULT SECTION - Always visible but content updates -->
+                <div class="result" id="result">
+                    <h3>Recommended Crop</h3>
+                    <div class="crop-name" id="crop-name">-</div>
+                    <div class="confidence" id="confidence">Confidence: -</div>
+                    
+                    <!-- Roadmap Button (hidden initially) -->
+                    <div class="roadmap-action" id="roadmap-action" style="display: none;">
+                        <a href="#" id="roadmap-link" class="btn-roadmap">
+                            📚 View Complete Cultivation Guide
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="info-container">
+                <h2>About This Tool</h2>
+                <p>This AI-powered system analyzes your field conditions to recommend the most suitable crops for cultivation. The recommendation is based on machine learning models trained on agricultural data.</p>
+                
+                <div class="season-info">
+                    <h3>Seasonal Information</h3>
+                    <p id="season-info-text">Select a season to see information about suitable crops.</p>
+                </div>
+                
+                <h3>Optimal Conditions</h3>
+                <ul>
+                    <li><strong>Temperature:</strong> Most crops thrive between 15-30°C</li>
+                    <li><strong>Humidity:</strong> Ideal range is typically 40-80% for most crops</li>
+                    <li><strong>Soil pH:</strong> Neutral pH (6.0-7.5) is best for most plants</li>
+                    <li><strong>Water Availability:</strong> Varies by crop type</li>
+                </ul>
+                
+                <h3>How It Works</h3>
+                <p>The system uses a Random Forest machine learning algorithm trained on crop data to predict the best crop based on your input parameters.</p>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2025 Crop Recommendation System | Powered by Machine Learning</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sync sliders with number inputs
+            const temperatureInput = document.getElementById('temperature');
+            const temperatureSlider = document.getElementById('temperature-slider');
+            const humidityInput = document.getElementById('humidity');
+            const humiditySlider = document.getElementById('humidity-slider');
+            const phInput = document.getElementById('ph');
+            const phSlider = document.getElementById('ph-slider');
+            const waterInput = document.getElementById('water_availability');
+            const waterSlider = document.getElementById('water-slider');
+            const seasonSelect = document.getElementById('season');
+            const seasonInfo = document.getElementById('season-info-text');
+            
+            // Set initial values
+            temperatureInput.value = temperatureSlider.value;
+            humidityInput.value = humiditySlider.value;
+            phInput.value = phSlider.value;
+            waterInput.value = waterSlider.value;
+            
+            // Sync number inputs with sliders
+            temperatureSlider.addEventListener('input', () => {
+                temperatureInput.value = temperatureSlider.value;
+            });
+            
+            humiditySlider.addEventListener('input', () => {
+                humidityInput.value = humiditySlider.value;
+            });
+            
+            phSlider.addEventListener('input', () => {
+                phInput.value = phSlider.value;
+            });
+            
+            waterSlider.addEventListener('input', () => {
+                waterInput.value = waterSlider.value;
+            });
+            
+            // Sync sliders with number inputs
+            temperatureInput.addEventListener('input', () => {
+                temperatureSlider.value = temperatureInput.value;
+            });
+            
+            humidityInput.addEventListener('input', () => {
+                humiditySlider.value = humidityInput.value;
+            });
+            
+            phInput.addEventListener('input', () => {
+                phSlider.value = phInput.value;
+            });
+            
+            waterInput.addEventListener('input', () => {
+                waterSlider.value = waterInput.value;
+            });
+            
+            // Load season info when season changes
+            seasonSelect.addEventListener('change', () => {
+                const season = seasonSelect.value;
+                fetch(`/season_info/${season}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        seasonInfo.textContent = data.info;
+                    })
+                    .catch(error => {
+                        seasonInfo.textContent = 'Error loading season information.';
+                    });
+            });
+            
+            // Load initial season info
+            fetch(`/season_info/${seasonSelect.value}`)
+                .then(response => response.json())
+                .then(data => {
+                    seasonInfo.textContent = data.info;
+                });
+            
+            // Handle form submission
+            document.getElementById('prediction-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = {
+                    temperature: temperatureInput.value,
+                    humidity: humidityInput.value,
+                    ph: phInput.value,
+                    water_availability: waterInput.value,
+                    season: seasonSelect.value
+                };
+                
+                // Show loading state
+                document.getElementById('crop-name').textContent = 'Analyzing...';
+                document.getElementById('confidence').textContent = 'Calculating...';
+                document.getElementById('roadmap-action').style.display = 'none';
+                
+                fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('crop-name').textContent = data.crop;
+                        document.getElementById('confidence').textContent = `Confidence: ${data.confidence}%`;
+                        
+                        // Show roadmap button
+                        const roadmapLink = document.getElementById('roadmap-link');
+                        roadmapLink.href = `/roadmap/${encodeURIComponent(data.crop)}`;
+                        document.getElementById('roadmap-action').style.display = 'block';
+                        
+                        // Scroll to results
+                        document.getElementById('result').scrollIntoView({ 
+                            behavior: 'smooth', 
+                            block: 'center'
+                        });
+                    } else {
+                        document.getElementById('crop-name').textContent = 'Error';
+                        document.getElementById('confidence').textContent = 'Please try again';
+                        alert('Error: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('crop-name').textContent = 'Error';
+                    document.getElementById('confidence').textContent = 'Network error';
+                    alert('Error: ' + error);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

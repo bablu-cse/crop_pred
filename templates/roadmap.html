@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Cultivation Guide - {{ roadmap.title }}{% endblock %}
+
+{% block content %}
+<div class="roadmap-container">
+    <div class="roadmap-header">
+        <h1>{{ roadmap.title }}</h1>
+        <div class="crop-meta">
+            <span class="season-tag">Best Season: {{ roadmap.season }}</span>
+            <span class="duration-tag">Duration: {{ roadmap.duration }}</span>
+        </div>
+    </div>
+
+    <div class="ideal-conditions">
+        <h2>🌱 Ideal Growing Conditions</h2>
+        <div class="conditions-grid">
+            <div class="condition-card">
+                <h3>Temperature</h3>
+                <p>{{ roadmap.ideal_conditions.temperature }}</p>
+            </div>
+            <div class="condition-card">
+                <h3>Rainfall</h3>
+                <p>{{ roadmap.ideal_conditions.rainfall }}</p>
+            </div>
+            <div class="condition-card">
+                <h3>Soil Type</h3>
+                <p>{{ roadmap.ideal_conditions.soil }}</p>
+            </div>
+            <div class="condition-card">
+                <h3>Soil pH</h3>
+                <p>{{ roadmap.ideal_conditions.ph }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="cultivation-steps">
+        <h2>📋 Complete Cultivation Roadmap</h2>
+        {% for step in roadmap.steps %}
+        <div class="step-card">
+            <div class="step-header">
+                <h3>{{ step.phase }}</h3>
+                <span class="step-duration">{{ step.duration }}</span>
+            </div>
+            <ul class="step-tasks">
+                {% for task in step.tasks %}
+                <li>{{ task }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="action-buttons">
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">← Back to Recommendation</a>
+        <button onclick="window.print()" class="btn btn-primary">🖨️ Print Guide</button>
+    </div>
+</div>
+{% endblock %}
